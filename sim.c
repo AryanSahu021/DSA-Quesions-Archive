@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "test.h"
+
 
 /*
  * The status of a line.
@@ -23,10 +23,20 @@ typedef char board_t[15];
 typedef char player_t; /* A player should be RED or BLUE. */
 
 int has_won(board_t board, player_t player)
-{}
+{
+
+}
 
 int is_full(board_t board)
-{}
+{
+    int flag=1;
+    for (int i=0;i<15;i++){
+        if (board[i]==0){
+            flag=0;
+        }
+    }
+    return flag;
+}
 
 typedef struct {
     int line; /* 0 for 12, 1 for 13, ..., 14 for 56. */
@@ -48,6 +58,7 @@ void print_board(board_t board)
 
 int main()
 {
+    
     /* Your game play logic. */
     /* The user should have the option to select red or blue player. */
     return 0;
