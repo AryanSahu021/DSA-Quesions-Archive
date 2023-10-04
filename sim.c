@@ -22,6 +22,13 @@ enum {
 typedef char board_t[15];
 typedef char player_t; /* A player should be RED or BLUE. */
 
+player_t invert(player_t player){
+    switch (player){
+        case RED: return BLUE;
+        case BLUE: return RED;
+    }
+}
+
 int has_won(board_t board, player_t player)
 {
 
@@ -44,7 +51,9 @@ typedef struct {
 } move_t;
 
 move_t best_move(board_t board, player_t player)
-{}
+{
+    
+}
 
 void print_board(board_t board)
 {
@@ -56,9 +65,27 @@ void print_board(board_t board)
     }
 }
 
+
 int main()
 {
-    
+    board_t board;
+    player_t player = RED;
+    while (!(is_full(board))){
+        print_board(board);
+        move_t move;
+        scanf("%d",&move.line);
+        board[move.line] = player;
+        if (has_won(board, player)){
+            printf("You Won!!");
+            break;
+        }
+        move_t bestmove = best_move(board, invert(player));
+        board[bestmove.line] = invert(player);
+        printf("Updated Board: \n");
+        if (has_won(board, invert(player))){
+            printf("You Lost!!");
+            break;
+        }
     /* Your game play logic. */
     /* The user should have the option to select red or blue player. */
     return 0;
