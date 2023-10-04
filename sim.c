@@ -99,6 +99,7 @@ typedef struct {
     int score; /* -1 for loss, 0 for draw, 1 for win. */
 } move_t;
 
+
 move_t best_move(board_t board, player_t player)
 {
     move_t move;
@@ -158,7 +159,11 @@ void print_board(board_t board)
 int main()
 {
     board_t board={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    player_t player=RED;
+    player_t player;
+    int p;
+    printf("Choose player:(RED:1 or BLUE:2)\n");
+    scanf("%d",&p);
+    player=p;
     while (!(is_full(board))){
         move_t move;
         scanf("%d",&move.line);
