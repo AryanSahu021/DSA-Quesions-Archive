@@ -22,6 +22,17 @@ enum {
 typedef char board_t[15];
 typedef char player_t; /* A player should be RED or BLUE. */
 
+typedef struct {
+    int line; /* 0 for 12, 1 for 13, ..., 14 for 56. */
+    int score; /* -1 for loss, 0 for draw, 1 for win. */
+} move_t;
+
+typedef struct{
+    int visited;
+    move_t move;
+} tables;
+tables table[3^15];
+
 player_t invert(player_t player){
     switch (player){
         case RED: return BLUE;
@@ -94,14 +105,18 @@ int is_full(board_t board)
     return flag;
 }
 
-typedef struct {
-    int line; /* 0 for 12, 1 for 13, ..., 14 for 56. */
-    int score; /* -1 for loss, 0 for draw, 1 for win. */
-} move_t;
 
 
 move_t best_move(board_t board, player_t player)
-{
+{   int index=0;
+    int k=0;
+    for (int j=14;j>=0;j--){
+        index=index+(board[j]*(3^k));
+        k++;
+    }
+    if (table[index].visited){
+        return table[index].move;
+    }
     move_t move;
     int i=0;
     int movefound=0;
@@ -113,6 +128,8 @@ move_t best_move(board_t board, player_t player)
             if (has_won(board,player)){
                 move.score=1;
                 board[i]=0;
+                table[index].move=move;
+                table[index].visited=1;
                 return move;
             }
             else if (has_won(board,invert(player))){
@@ -127,6 +144,8 @@ move_t best_move(board_t board, player_t player)
             if (newmove.score==-1){
                 move.score=1;
                 board[i]=0;
+                table[index].visited=1;
+                table[index].move=move;
                 return move;
             }
             else if (newmove.score==0){
@@ -141,6 +160,8 @@ move_t best_move(board_t board, player_t player)
         }
         i=i+1;
     }
+    table[index].move=cur_move;
+    table[index].visited=1;
     return cur_move;
 }
 
@@ -148,13 +169,13 @@ void print_board(board_t board)
 {
     for (int i = 0; i < 15; ++i) {
         switch (board[i]) {
-        case NO: printf("N "); break;
+        case NO: printf("N  "); break;
         case RED: printf("R  "); break;
         case BLUE: printf("B  "); break;
         }
     }
+    printf("\n");
 }
-
 
 int main()
 {
