@@ -30,6 +30,7 @@ int play_move(board_t board,move_t move,player_t player){
             return i;
         }
     }
+    return -1;
 }
 
 int has_won(board_t board, player_t player)

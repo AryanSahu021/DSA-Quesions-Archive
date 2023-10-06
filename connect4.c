@@ -22,70 +22,118 @@ player_t invert(player_t player){
     }
 }
 
-int play_move(board_t board,move_t move,player_t player){
+void play_move(board_t board,move_t move,player_t player){
     assert (board[0][move.col]==0);
-    for (int i=3;i>=0;i--){
-        if (board[i][move.col]==0){
+    for (int i=0;i<4;i++){
+        if (board[i][move.col]!=0){
+            board[i-1][move.col]=player;
+            break;
+        }
+        else if (i==3){
             board[i][move.col]=player;
-            return i;
         }
     }
 }
 
 int has_won(board_t board, player_t player)
 {   
-    // Horizontal
-    for (int row = 0; row < 4; row++) {
-        for (int col = 0; col < 2; col++) {
-            if (board[row][col] == player &&
-                board[row][col + 1] == player &&
-                board[row][col + 2] == player &&
-                board[row][col + 3] == player) {
-                return 1;
+    for (int i=0;i<4;i++){
+        for (int j=0;j<5;j++){
+            if (board[i][j]==player){
+                if ((i+3)<4){
+                    int flag=1;
+                    for (int k=i;k<(i+4);k++){
+                        if (board[k][j]!=player){
+                            flag=0;
+                            break;
+                        }
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
+                if ((i-3)>=0){
+                    int flag=1;
+                    for (int k=i;k>=(i-3);k--){
+                        if (board[k][j]!=player){
+                            flag=0;
+                            break;
+                        }
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
+                if ((j+3)<=4){
+                    int flag=1;
+                    for (int k=j;k<(j+4);k++){
+                        if (board[i][k]!=player){
+                            flag=0;
+                            break;
+                        }
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
+                if ((j-3)>=0){
+                    int flag=1;
+                    for (int k=j;k>=(j-3);k--){
+                        if (board[i][k]!=player){
+                            flag=0;
+                            break;
+                        }
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
+                if (((i+3)<4)&&((j+3)<=4)){
+                    int flag=1;
+                    int k=i;
+                    int l=j;
+                    while (k<(i+4)){
+                        if (board[k][l]!=player){
+                            flag=0;
+                            break;
+                        }
+                        k++;
+                        l++;
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
+                if (((i-3)>=0)&&((j-3)>=0)){
+                    int flag=1;
+                    int k=i;
+                    int l=j;
+                    while (k<(i+4)){
+                        if (board[k][l]!=player){
+                            flag=0;
+                            break;
+                        }
+                        k--;
+                        l--;
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
             }
         }
     }
-
-    // Vertical
-    for (int col = 0; col < 5; col++) {
-        for (int row = 0; row < 1; row++) {
-            if (board[row][col] == player &&
-                board[row + 1][col] == player &&
-                board[row + 2][col] == player &&
-                board[row + 3][col] == player) {
-                return 1;
-            }
-        }
-    }
-
-    // Diagonal1
-    for (int row = 0; row < 1; row++) {
-        for (int col = 0; col < 2; col++) {
-            if (board[row][col] == player &&
-                board[row + 1][col + 1] == player &&
-                board[row + 2][col + 2] == player &&
-                board[row + 3][col + 3] == player) {
-                return 1;
-            }
-        }
-    }
-
-    // Diagonal2
-    for (int row = 3; row >= 2; row--) {
-        for (int col = 0; col < 2; col++) {
-            if (board[row][col] == player &&
-                board[row - 1][col + 1] == player &&
-                board[row - 2][col + 2] == player &&
-                board[row - 3][col + 3] == player) {
-                return 1;
-            }
-        }
-    }
-
     return 0;
 }
 
-
+void reset_move(board_t board,move_t move){
+    for (int i=0;i<4;i++){
+        if (board[i][move.col]!=0){
+            board[i][move.col]=0;
+            break;
+        }
+    }
+}
 int is_full(board_t board)
 {
     for (int j=0;j<5;j++){
@@ -96,66 +144,91 @@ int is_full(board_t board)
     return 1;
 }
 
-
+typedef struct{
+    int visited;
+    move_t move;
+} tables;
+tables table[3^20];
+int players[3^20];
 
 move_t best_move(board_t board, player_t player)
-{   move_t response;
-    move_t candidate;
-    int no_candidate = 1;
-
-    for (int col = 0; col < 5; ++col) {
-        if (board[0][col]==0) {
-            move_t move;
-            move.col=col;
-            int row= play_move(board,move,player);
-            if (has_won(board, player)) {
-                board[row][col]=EMPTY;
-                return (move_t){col, 1};
-            }
-            board[row][col]=EMPTY;
+{   int index=0;
+    int k=0;
+    for (int i=3;i>=0;i--){
+        for (int j=4;j>=0;j--){
+            index=index+(board[i][j]*(3^k));
+            k++;
         }
     }
-
-    player_t opponent = invert(player);
-    for (int col = 0; col < 5; ++col) {
-        if (board[0][col]==0) {
-            move_t move;
-            move.col=col;
-            int row = play_move(board,move,player);
-            if (has_won(board, opponent)) {
-                board[row][col]=EMPTY;
-                return (move_t){col, 1};
-            }
-            board[row][col]=EMPTY;
+    if (table[index].visited==1){
+        if (players[index]==player){
+            return table[index].move;
         }
     }
-
-    for (int col = 0; col < 5; ++col) {
-        if (board[0][col]==0) {
-            move_t move;
-            move.col=col;
-            int row = play_move(board,move,player);
-            if (is_full(board)) {
-                board[row][col]=EMPTY;
-                return (move_t){col, 0};
+    move_t move;
+    for (int i=0;i<5;i++){
+        if (board[0][i]==0){
+            move.col=i;
+            play_move(board,move,player);
+            if (has_won(board,player)){
+                reset_move(board,move);
+                move.score=1;
+                table[index].visited=1;
+                table[index].move=move;
+                players[index]=player;
+                return move;
             }
-            response = best_move(board, invert(player));
-            board[row][col]=EMPTY;
-            if (response.score == -1) {
-                return (move_t){col, 1};
-            } else if (response.score == 0) {
-                candidate = (move_t){col, 0};
-                no_candidate = 0;
-            } else {
-                if (no_candidate) {
-                    candidate = (move_t){col, -1};
-                    no_candidate = 0;
+            reset_move(board,move);
+        }
+    }
+    int j=0;
+    int movefound=0;
+    move_t cur_move;
+    while (j<5){
+        if (board[0][j]==0){
+            move.col=j;
+            play_move(board,move,player);
+            if (has_won(board,player)){
+                move.score=1;
+                reset_move(board,move);
+                table[index].move=move;
+                table[index].visited=1;
+                players[index]=player;
+                return move;
+            }
+            else if (has_won(board,invert(player))){
+                move.score=-1;
+                if (movefound==0){
+                    cur_move.col=j;
+                    cur_move.score=-1;
                 }
             }
-        }
-    }
+            move_t newmove;
+            newmove=best_move(board,invert(player));
+            if (newmove.score==-1){
+                move.score=1;
+                reset_move(board,move);
+                table[index].visited=1;
+                table[index].move=move;
+                players[index]=player;
+                return move;
+            }
+            else if (newmove.score==0){
+                if (movefound==0){
+                    cur_move.col=j;
+                    cur_move.score=0;
+                    movefound=1;
+                }
+            }
+            reset_move(board,move);
 
-    return candidate;
+        }
+        j=j+1;
+    }
+    table[index].move=cur_move;
+    table[index].visited=1;
+    players[index]=player;
+    return cur_move;
 }
 
 void print_board(board_t board)
@@ -174,68 +247,33 @@ void print_board(board_t board)
 
 int main()
 {
+    board_t board={{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}};
+    player_t player;
+    print_board(board);
+    printf("Choose Color: RED:1 or BLUE:2\n");
+    int p;
+    scanf("%d",&p);
+    player=p;
+    while (!(is_full(board))){
+        move_t move;
+        scanf("%d",&move.col);
+        play_move(board,move,player);
+        if (has_won(board, player)){
+            printf("You Won!!\n");
+            print_board(board);
+            break;
+        }
+        move_t bestmove = best_move(board, invert(player));
+        printf("%d\n",bestmove.col);
+        play_move(board,bestmove,invert(player));
+        printf("Updated Board: \n");
+        print_board(board);
+        if (has_won(board, invert(player))){
+            printf("You Lost!!\n");
+            break;
+        }
+    }
     /* Your game play logic. */
     /* The user should have the option to select red or blue player. */
-    int move, col;
-    board_t board={{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}};
-    move_t response;
-    int x;
-    printf("You are red colour, Do you choose to be player 1 or 2: ");
-    scanf("%d", &x);
-    player_t current;
-
-    if (x == 1) {
-        current = RED;
-    } else if (x == 2) {
-        current = BLUE;
-    } else {
-        printf("\nInvalid choice");
-        return 1; // Exit the program due to invalid choice
-    }
-
-    while (1) {
-        if (x != 1 && x != 2) {
-            printf("\nInvalid choice");
-            break;
-        }
-        print_board(board);
-        printf("\n\n");
-
-        if (current == RED) {
-            printf("0  1  2  3  4\n");
-            printf("\nEnter your move: ");
-            scanf("%d", &move);
-            col = move;
-
-            if (col >= 0 && col < 5 && board[0][col]==0) {
-                move_t move;
-                move.col=col;
-                play_move(board, move, current);
-            } else {
-                printf("Invalid move. Try again.\n");
-                continue;
-            }
-        } else {
-            response = best_move(board, current);
-            col = response.col;
-
-            if (col >= 0 && col < 5 && board[0][col]==0) {
-                move_t move;
-                move.col=col;
-                play_move(board, move, current);
-            }
-        }
-
-        if (has_won(board, current)) {
-            print_board(board);
-            printf("Player %c has won!\n", (current == RED) ? 'R' : 'B');
-            break;
-        }else if (is_full(board)) {
-            printf("It's a draw!\n");
-            break;
-        }
-
-        current = invert(current);
-    }
     return 0;
 }
