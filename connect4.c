@@ -37,52 +37,89 @@ void play_move(board_t board,move_t move,player_t player){
 
 int has_won(board_t board, player_t player)
 {   
-    int count=0;
-    int count2=0;
     for (int i=0;i<4;i++){
-        if (board[i][i]==player){
-            count++;
-        }
-        if (board[i][i+1]==player){
-            count2++;
-        }
-        if ((count==4)|(count2==4)){
-            return 1;
-        }
-        int count1=0;
         for (int j=0;j<5;j++){
-            
-            if (count1==4){
-                return 1;
-            }
             if (board[i][j]==player){
-                count1++;
-            }
-        }
-    }
-    for (int j=0;j<5;j++){
-        int count3=0;
-        for (int i=0;i<4;i++){
-            if (count3==4){
-                return 1;
-            }
-            if (board[i][j]==player){
-                count3++;
-            }
-        }
-    }
-    int count4=0;
-    int count5=0;
-    for (int j=4;j>0;j--){
-        for (int i=0;i<4;i++){
-            if ((count4==4)|(count5==4)){
-                return 1;
-            }
-            if (board[i][j]==player){
-                count4++;
-            }
-            if (board[i][j-1]==player){
-                count5++;
+                if ((i+3)<4){
+                    int flag=1;
+                    for (int k=i;k<(i+4);k++){
+                        if (board[k][j]!=player){
+                            flag=0;
+                            break;
+                        }
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
+                if ((i-3)>=0){
+                    int flag=1;
+                    for (int k=i;k>=(i-3);k--){
+                        if (board[k][j]!=player){
+                            flag=0;
+                            break;
+                        }
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
+                if ((j+3)<=4){
+                    int flag=1;
+                    for (int k=j;k<(j+4);k++){
+                        if (board[i][k]!=player){
+                            flag=0;
+                            break;
+                        }
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
+                if ((j-3)>=0){
+                    int flag=1;
+                    for (int k=j;k>=(j-3);k--){
+                        if (board[i][k]!=player){
+                            flag=0;
+                            break;
+                        }
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
+                if (((i+3)<4)&&((j+3)<=4)){
+                    int flag=1;
+                    int k=i;
+                    int l=j;
+                    while (k<(i+4)){
+                        if (board[k][l]!=player){
+                            flag=0;
+                            break;
+                        }
+                        k++;
+                        l++;
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
+                if (((i-3)>=0)&&((j-3)>=0)){
+                    int flag=1;
+                    int k=i;
+                    int l=j;
+                    while (k<(i+4)){
+                        if (board[k][l]!=player){
+                            flag=0;
+                            break;
+                        }
+                        k--;
+                        l--;
+                    }
+                    if (flag){
+                        return 1;
+                    }
+                }
             }
         }
     }
