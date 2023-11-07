@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <math.h>
 #include <assert.h>
+#include <limits.h>
 /* Implement connect 4 on a 5 (columns) x 4 (rows) board. */
 enum {
     EMPTY = 0,
@@ -148,16 +150,16 @@ typedef struct{
     int visited;
     move_t move;
 } tables;
-tables table[3^20];
-int players[3^20];
+tables table[100000];
+int players[1000000];
 
 move_t best_move(board_t board, player_t player)
 {   int index=0;
-    int k=0;
+    int k=1;
     for (int i=3;i>=0;i--){
         for (int j=4;j>=0;j--){
-            index=index+(board[i][j]*(3^k));
-            k++;
+            index=index+(board[i][j]*(k));
+            k=k*3;
         }
     }
     if (table[index].visited==1){
