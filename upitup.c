@@ -13,6 +13,7 @@ enum {
     SIDE
 };
 typedef char cube;/* The position of the logo is specified by the following values-
+-1:Empty slot
 0: Top 
 1: Right
 2: Back
@@ -29,10 +30,21 @@ typedef struct {
     int score;
 } move_t;
 
+typedef struct parentNode{
+    board_t board;
+    struct parentNode* parent;
+} parentNode;
+
+typedef struct paths{
+    parentNode* start;
+    parentNode* end;
+}paths;
+
 typedef struct QueueNode {
     board_t board;
     move_t move;
     struct QueueNode* next;
+    struct parentNode* same;
 } QueueNode;
 
 typedef struct Queue {
@@ -40,7 +52,8 @@ typedef struct Queue {
     QueueNode* rear;
 } Queue;
 
-void enqueue(Queue* queue, board_t board, move_t move) {
+
+void enqueue(Queue* queue, board_t board, move_t move,parentNode* p) {
     QueueNode* newNode = (QueueNode*)malloc(sizeof(QueueNode));
     if (!newNode) {
         perror("Memory allocation error");
@@ -50,7 +63,7 @@ void enqueue(Queue* queue, board_t board, move_t move) {
     memcpy(newNode->board, board, sizeof(board_t));
     newNode->move = move;
     newNode->next = NULL;
-
+    newNode->same = p;
     if (queue->rear == NULL) {
         queue->front = newNode;
         queue->rear = newNode;
@@ -263,7 +276,12 @@ void reset_move(board_t board,move_t move){
 void printboard(board_t board){
     for (int i=0;i<3;i++){
         for (int j=0;j<3;j++){
-            printf("%d ",board[i][j]);
+            if (board[i][j]==-1){
+                printf("  ");
+            }
+            else{
+                printf("%d ",board[i][j]);
+            }
         }
         printf("\n");
     }
@@ -271,13 +289,19 @@ void printboard(board_t board){
 }
 char moves[4]={L,R,U,D};
 int visited[41000000];
+board_t shotest_path[50];
 
 int bfs_solver(board_t initial_board) {
     int won=0;
+    paths path;
+    parentNode* p=(parentNode*)malloc(sizeof(parentNode));
+    memcpy(p->board,initial_board,sizeof(board_t));
+    p->parent=NULL;
+    path.start=p;
     Queue queue;
     queue.front = queue.rear = NULL;
     move_t initial_move = {1, 1, 0, 0};
-    enqueue(&queue, initial_board, initial_move);
+    enqueue(&queue, initial_board, initial_move,p);
     
     while (!isEmpty(&queue)) {
         board_t current_board;
@@ -285,12 +309,21 @@ int bfs_solver(board_t initial_board) {
         char temp;
         memcpy(current_board, queue.front->board, sizeof(board_t));
         current_move = queue.front->move;
+        parentNode* p=queue.front->same;
         dequeue(&queue);
-
         if (has_won(current_board)) {
-            printboard(current_board);
-            printf("HAS WON!!");
-            won=1;
+            path.end=p;
+            int step=0;
+            while(path.end){
+                memcpy(shotest_path[step],(path.end->board),sizeof(board_t));
+                path.end=path.end->parent;
+                step++;
+            }
+            while(step>0){
+                printboard(shotest_path[step-1]);
+                step--;
+            }
+            printf("\nGame Solved!!\n");
         } else {
             for (int l=0;l<4;l++){
                 move_t next_move=current_move;
@@ -338,7 +371,11 @@ int bfs_solver(board_t initial_board) {
                         }
                     }
                     if (!visited[ind]){
-                        enqueue(&queue,current_board,next_move);
+                        parentNode*q=(parentNode*)malloc(sizeof(parentNode));
+                        memcpy(q->board,current_board,sizeof(board_t));
+                        q->parent=p;
+                        path.end=q;
+                        enqueue(&queue,current_board,next_move,q);
                         visited[ind]=1;
                     }
                     reset_move(current_board,current_move);
@@ -353,7 +390,8 @@ int bfs_solver(board_t initial_board) {
 int main()
 {
     board_t board={{5,5,5},{5,-1,5},{5,5,5}};
-    
+    printf("Board Representation according to the position of the main logo for each board position :\n-1 => Empty slot\n0 => Top\n1 => Right Side\n2 => Back\n3 => Left Side\n4 => Front\n5 => Bottom\n");
+    printf("Following is the order of moves to solve the board:\n");
     bfs_solver(board);
     return 0;
 }
