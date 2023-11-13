@@ -389,7 +389,7 @@ int bfs_solver(board_t initial_board) {
 
 int main()
 {
-    board_t board={{5,5,5},{5,-1,5},{5,5,5}};
+    board_t board={{0,0,0},{0,-1,0},{0,0,0}};
     printf("Board Representation according to the position of the main logo for each board position :\n-1 => Empty slot\n0 => Top\n1 => Right Side\n2 => Back\n3 => Left Side\n4 => Front\n5 => Bottom\n");
     printf("Following is the order of moves to solve the board:\n");
     bfs_solver(board);
