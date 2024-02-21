@@ -385,17 +385,16 @@ void reset_move(cube board,char move){
 /*Hierarchy:
 WHITE>RED>GREEN>ORANGE>BLUE>YELLOW
 */
-char moves[9]={R,R2,RI,U,U2,UI,F,F2,FI};
 int visited[40320][6600];
 char shotest_path[100];
 typedef char scube[3];
-scube all[8]={{WHITE,RED,BLUE},{WHITE,RED,GREEN},{RED,YELLOW,BLUE},{RED,YELLOW,GREEN},{WHITE,ORANGE,GREEN},{WHITE,ORANGE,BLUE},{ORANGE,GREEN,YELLOW},{ORANGE,BLUE,YELLOW}};
+scube all[8]={{WHITE,RED,BLUE},{WHITE,GREEN,RED},{RED,YELLOW,BLUE},{RED,GREEN,YELLOW},{WHITE,ORANGE,GREEN},{WHITE,BLUE,ORANGE},{ORANGE,YELLOW,GREEN},{ORANGE,YELLOW,BLUE}};
 typedef struct indexes{
     int ind_8;
     __uint8_t ind_3;
 }indexes;
 indexes calc_ind(cube c){
-    scube cubes[8]={{c[0][1][0],c[1][0][0],c[4][0][1]},{c[0][1][1],c[1][0][1],c[2][0][0]},{c[1][1][0],c[5][0][0],c[4][1][1]},{c[1][1][1],c[5][0][1],c[2][1][0]},{c[0][0][1],c[3][0][0],c[2][0][1]},{c[0][0][0],c[3][0][1],c[4][0][0]},{c[3][1][0],c[2][1][1],c[5][1][1]},{c[3][1][1],c[4][1][0],c[5][1][0]}};
+    scube cubes[8]={{c[0][1][0],c[1][0][0],c[4][0][1]},{c[0][1][1],c[2][0][0],c[1][0][1]},{c[1][1][0],c[5][0][0],c[4][1][1]},{c[1][1][1],c[2][1][0],c[5][0][1]},{c[0][0][1],c[3][0][0],c[2][0][1]},{c[0][0][0],c[4][0][0],c[3][0][1]},{c[3][1][0],c[5][1][1],c[2][1][1]},{c[3][1][1],c[5][1][0],c[4][1][0]}};
     int value_8[8];
     int value_3[8];
     for (int i=0;i<8;i++){
@@ -403,7 +402,7 @@ indexes calc_ind(cube c){
             for (int j=0;j<3;j++){
                 int flag=1;
                 for (int k=0;k<3;k++){
-                    if (!all[l][(k+j)%3]==cubes[i][k]){
+                    if (!(all[l][(k+j)%3]==cubes[i][k])){
                         flag=0;
                     }
                 }
@@ -414,6 +413,7 @@ indexes calc_ind(cube c){
             }
         }
     }
+    
     indexes ind;
     int ind_8=1;
     for (int i=0;i<8;i++){
@@ -468,7 +468,6 @@ indexes calc_ind(cube c){
 }
 
 int bfs_solver(cube initial_board) {
-    int won=0;
     paths path;
     parentNode* p=(parentNode*)malloc(sizeof(parentNode));
     memcpy(p->board,initial_board,sizeof(cube));
@@ -496,7 +495,6 @@ int bfs_solver(cube initial_board) {
                 path.end=path.end->parent;
                 step++;
             }
-            step--;
             while(step>0){
                 switch (shotest_path[step-1])
                 {
@@ -534,14 +532,17 @@ int bfs_solver(cube initial_board) {
                 step--;
             }
             printf("\nGame Solved!!\n");
+            return 1;
         } else {
-            for (int l=0;l<9;l++){
+            for (int l=6;l<15;l++){
                 char next_move;
-                next_move=moves[l];
-                if ((oppose(current_move)!=next_move)){              
+                next_move=l;
+                if ((oppose(current_move)!=next_move)){
+                               
                     play_move(current_board,next_move);
                     indexes ind=calc_ind(current_board);
-                    if (!visited[ind.ind_3][ind.ind_8]){
+                    if (!(visited[ind.ind_3][ind.ind_8])){ 
+                        
                         parentNode*q=(parentNode*)malloc(sizeof(parentNode));
                         memcpy(q->board,current_board,sizeof(cube));
                         q->move=next_move;
@@ -555,15 +556,15 @@ int bfs_solver(cube initial_board) {
             }
         }
     }
-    return won;
+    return 0;
 }
 
 int main()
 {
-    cube board={{{WHITE,WHITE},{WHITE,WHITE}},{{RED,RED},{RED,RED}},{{GREEN,GREEN},{GREEN,GREEN}},{{ORANGE,ORANGE},{ORANGE,ORANGE}},{{BLUE,BLUE},{BLUE,BLUE}},{{YELLOW,YELLOW},{YELLOW,YELLOW}}};
-    play_move(board,F);
-    play_move(board,R);
-    play_move(board,UI);
-    bfs_solver(board);
+    cube board={{{RED,RED},{GREEN,ORANGE}},{{WHITE,BLUE},{RED,YELLOW}},{{WHITE,WHITE},{GREEN,RED}},{{BLUE,BLUE},{GREEN,ORANGE}},{{YELLOW,ORANGE},{BLUE,GREEN}},{{WHITE,ORANGE},{YELLOW,YELLOW}}};
+
+    if (!bfs_solver(board)){
+        printf("Invalid Cube");
+    }
     return 0;
 }
