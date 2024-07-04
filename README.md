@@ -1,6 +1,6 @@
 # DSA Questions Archive
 
-This repository contains various Data Structures and Algorithms (DSA) question codes that I have written. Each file focuses on a specific problem or game implementation. Below is a brief description of each file and the problem it addresses.
+This repository contains various Data Structures and Algorithms (DSA) question codes that I have written as part of course work for DSA I & DSA II. Each file focuses on a specific problem or game implementation. Below is a brief description of each file and the problem it addresses. 
 
 ## Contents
 
