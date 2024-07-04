@@ -42,8 +42,8 @@ int mis(int root, int parent, int** adjList, int* dp, int* dpChildren) {
 
 int main() {
     FILE *input, *output, *expectedOutput;
-    input = fopen("input_2.txt", "r");
-    output = fopen("output_2.txt", "w");
+    input = fopen("MIS_input.txt", "r");
+    output = fopen("output.txt", "w");
 
     if (input == NULL || output == NULL) {
         printf("Error opening files.\n");

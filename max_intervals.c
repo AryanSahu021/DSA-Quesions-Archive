@@ -71,7 +71,7 @@ void processIntervalsFromFile(const char *inputFileName, const char *outputFileN
 }
 
 int main() {
-    processIntervalsFromFile("input_1.txt", "output_1.txt");
+    processIntervalsFromFile("MaxInterval_input.txt", "output.txt");
     printf("Output saved in 'output_1.txt'.\n");
 
     return 0;

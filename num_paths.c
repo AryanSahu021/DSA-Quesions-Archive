@@ -54,7 +54,7 @@ int uniquePathsWithObstacles(int** obstacleGrid, int obstacleGridSize, int* obst
 
 int main() {
     FILE *input, *output, *expectedOutput;
-    input = fopen("input.txt", "r");
+    input = fopen("NumPaths_input.txt", "r");
     output = fopen("output.txt", "w");
 
     if (input == NULL || output == NULL) {
